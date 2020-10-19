@@ -1,11 +1,6 @@
-from __future__ import unicode_literals
 import re
-import os
-import glob
 import tkinter as tk
-import sys
 import threading
-import time
 import tkinter.scrolledtext as tkst
 import requests
 import youtube_dl
