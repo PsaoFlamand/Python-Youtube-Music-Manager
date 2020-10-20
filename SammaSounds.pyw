@@ -38,12 +38,12 @@ class App(tk.Tk):
     def threadstarter(self):
         try:
             thread0.stop()
-            thread0=threading.Thread(target=self.clicked0)
+            thread0=threading.Thread(target=self.searcher)
             thread0.start()
         except:
-            thread0=threading.Thread(target=self.clicked0)
+            thread0=threading.Thread(target=self.searcher)
             thread0.start()
-    def clicked0(self):
+    def searcher(self):
 
         #Retrieve url and name results from search query
         
