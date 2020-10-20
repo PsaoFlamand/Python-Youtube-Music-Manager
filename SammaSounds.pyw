@@ -26,7 +26,7 @@ class App(tk.Tk):
         self.button0 = tk.Button(self, text="Search", command=self.threadstarter) 
         self.button0.grid(row=0,column=0,sticky='e')
         self.lstbox0 = tk.Listbox(self,width=80,height=15) 
-        self.lstbox0.bind("<Double-Button-1>", self.clicked1) 
+        self.lstbox0.bind("<Double-Button-1>", self.selector) 
         self.lstbox0.grid(row=1,column=0,sticky='nsw') 
         self.scroll0 = tk.Scrollbar(self, orient="vertical") 
         self.scroll0.config(command=self.lstbox0.yview) 
@@ -75,7 +75,7 @@ class App(tk.Tk):
             for i3 in requests.get(i2):
                 self.p.step()            
                 self.update()
-                if a3==1:
+                if a3==1:#If an incomplete chunk is recieved, add its neighbor
                     combined=combined+str(i3)
                     m = re.search(''',"title":"''', str(combined))
                     
@@ -94,7 +94,7 @@ class App(tk.Tk):
 
                     combined=combined+str(i3)
                     a3=1
-    def clicked1(self,event):
+    def selector(self,event):
         #Launch start of download of selected file
         widget = event.widget 
         selection=widget.curselection() 
@@ -103,14 +103,14 @@ class App(tk.Tk):
         selection=re.sub("\D", "", str(selection))
         try:
             thread1.stop()
-            thread1=threading.Thread(target=self.clicked2(selection))
+            thread1=threading.Thread(target=self.download(selection))
             thread1.start()
         except: 
-            thread1=threading.Thread(target=self.clicked2(selection))
+            thread1=threading.Thread(target=self.download(selection))
             thread1.start()
         words='' 
 
-    def clicked2(self,choice):
+    def download(self,choice):
         #download and strip audio
         pick=self.urlresults[int(choice)]
         ydl_opts = {'loglevel':'quiet',
