@@ -11,7 +11,6 @@ class App(tk.Tk):
 
     def __init__(self, *args, **kwargs):
         
-        self.test=0
         #Standard setup
 
         tk.Tk.__init__(self, *args, **kwargs) 
@@ -46,13 +45,11 @@ class App(tk.Tk):
         except:
             proc = multiprocessing.Process(target=self.searcher(), args=())
             proc.start()
-    def searcher(self):
-        self.test=1
-        self.stop_threads=False
-        while True:
-            #global stop_threads
-
             
+    def searcher(self):
+
+        while True:
+                  
             #Retrieve url and name results from search query
             
             self.lstbox0.delete(0, tk.END)
@@ -112,13 +109,8 @@ class App(tk.Tk):
         words = widget.get(selection[0]) 
         words=words.split(' ')
         selection=re.sub("\D", "", str(selection))
-        try:
-            thread1.stop()
-            thread1=threading.Thread(target=self.download(selection))
-            thread1.start()
-        except: 
-            thread1=threading.Thread(target=self.download(selection))
-            thread1.start()
+        thread1=threading.Thread(target=self.download(selection))
+        thread1.start()
         words='' 
 
     def download(self,choice):
