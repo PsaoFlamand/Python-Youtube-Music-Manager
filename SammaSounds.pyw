@@ -6,7 +6,6 @@ import requests
 import youtube_dl
 from tkinter.ttk import Progressbar
 import multiprocessing
-import multiprocessing.dummy
 import subprocess
 
 class App(tk.Tk): 
