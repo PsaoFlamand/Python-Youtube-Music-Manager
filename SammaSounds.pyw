@@ -78,7 +78,7 @@ class App(tk.Tk):
             
             for i3 in requests.get(i2):
                 self.p.step()            
-                if a3==1:#If an incomplete chunk is recieved, add its neighbor
+                if a3==1:#May be an incomplete chunk, add its neighbor
                     combined=combined+str(i3)
                     m = re.search(''',"title":"''', str(combined))
                     
