@@ -6,6 +6,8 @@ import requests
 import youtube_dl
 from tkinter.ttk import Progressbar
 import multiprocessing
+import multiprocessing.dummy
+import subprocess
 
 class App(tk.Tk): 
 
@@ -77,7 +79,6 @@ class App(tk.Tk):
             
             for i3 in requests.get(i2):
                 self.p.step()            
-                
                 if a3==1:#If an incomplete chunk is recieved, add its neighbor
                     combined=combined+str(i3)
                     m = re.search(''',"title":"''', str(combined))
@@ -107,21 +108,17 @@ class App(tk.Tk):
         words = widget.get(selection[0]) 
         words=words.split(' ')
         selection=re.sub("\D", "", str(selection))
-        thread1=threading.Thread(target=self.download(selection))
+        thread1 = threading.Thread(target=self.download(selection))
+     
         thread1.start()
         words='' 
 
     def download(self,choice):
         #download and strip audio
         pick=self.urlresults[int(choice)]
-        ydl_opts = {'loglevel':'quiet',
-                    'format': 'bestaudio/best',
-                    'postprocessors': [{
-                    'key': 'FFmpegExtractAudio',
-                    'preferredcodec': 'mp3',
-                    'preferredquality': '192', }],}
-        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-            ydl.download([pick])
+
+        subprocess.Popen('youtube-dl -x --audio-format mp3 '+ pick)
+
         
 if __name__ == "__main__": 
 
