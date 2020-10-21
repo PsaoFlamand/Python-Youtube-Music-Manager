@@ -6,6 +6,7 @@ import requests
 import youtube_dl
 from tkinter.ttk import Progressbar
 import multiprocessing
+import multiprocessing.dummy
 import subprocess
 
 class App(tk.Tk): 
@@ -115,7 +116,6 @@ class App(tk.Tk):
     def download(self,choice):
         #download and strip audio
         pick=self.urlresults[int(choice)]
-
         subprocess.Popen('youtube-dl -x --audio-format mp3 '+ pick)
 
         
