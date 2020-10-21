@@ -64,7 +64,6 @@ class App(tk.Tk):
             self.update()
             if a9==1: #attach neighbor in case of incomplete chunk
                 combined=combined+str(i)
-                print(combined,"\n")
                 m = re.search('"videoIds"', str(combined))
                 s0=str(combined)[m.end():]
                 s0 = s0.split(',')
