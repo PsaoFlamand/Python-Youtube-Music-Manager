@@ -7,8 +7,6 @@ import youtube_dl
 from tkinter.ttk import Progressbar
 import multiprocessing
 
-
-
 class App(tk.Tk): 
 
     def __init__(self, *args, **kwargs):
