@@ -7,6 +7,7 @@ import youtube_dl
 from tkinter.ttk import Progressbar
 import multiprocessing
 import subprocess
+import time
 
 class App(tk.Tk): 
 
@@ -17,8 +18,8 @@ class App(tk.Tk):
         tk.Tk.__init__(self, *args, **kwargs) 
         self.title('SammaSounds')
         self.configure(bg='light grey')         
-        self.minsize(width=530, height=270)
-        self.maxsize(width=530, height=270)
+        self.minsize(width=500, height=120)
+        self.maxsize(width=500, height=120)
 
         #Implement Widgets
         
@@ -28,14 +29,14 @@ class App(tk.Tk):
         self.txtin0.grid(row=0,column=0, sticky='n')
         self.button0 = tk.Button(self, text="Search", command=self.threadstarter) 
         self.button0.grid(row=0,column=0,sticky='e')
-        self.lstbox0 = tk.Listbox(self,width=80,height=15) 
+        self.lstbox0 = tk.Listbox(self,width=77,height=5) 
         self.lstbox0.bind("<Double-Button-1>", self.selector) 
         self.lstbox0.grid(row=1,column=0,sticky='nsw') 
         self.scroll0 = tk.Scrollbar(self, orient="vertical") 
         self.scroll0.config(command=self.lstbox0.yview) 
         self.scroll0.grid(row=1,column=1,sticky='nsw')
         self.lstbox0.config(yscrollcommand=self.scroll0.set)
-        self.p = Progressbar(self,orient='vertical',length=240,mode="determinate",takefocus=True,maximum=95500)
+        self.p = Progressbar(self,orient='vertical',length=90,mode="determinate",takefocus=True,maximum=5)
         self.p.grid(row=1,column=2)
         
     def threadstarter(self):
@@ -56,49 +57,71 @@ class App(tk.Tk):
         link='https://www.youtube.com/results?search_query='+ excess
         self.urlresults=[]
         self.nameresults=[]
+        a6=0
+        combined=''
+        a9=0
         for i in requests.get(link):
             self.update()
-
-            if re.search('"videoIds"',str(i)):#"url"
-                m = re.search('"videoIds"', str(i))
-                s0=str(i)[m.end():]
+            if a9==1: #attach neighbor in case of incomplete chunk
+                combined=combined+str(i)
+                print(combined,"\n")
+                m = re.search('"videoIds"', str(combined))
+                s0=str(combined)[m.end():]
                 s0 = s0.split(',')
                 s0="".join(s0[0])
                 s0=re.sub('[\]\[}"\':]','',s0)
 
                 if len(s0)==11: #youtube video ID must be 11 chars long
+                    a6+=1
 
                     self.urlresults.append('https://www.youtube.com/watch?v='+s0)
                     self.urlresults = list(dict.fromkeys(self.urlresults))
+                    if len(self.urlresults)==5:#Limit search results to 5
+                        break
+                combined=''
+                a9=0
+            if re.search('"videoIds"',str(i)):
+
+                combined=combined+str(i)
+                a9=1
         a2=0
         a3=0
         combined=''
-        for i2 in self.urlresults:
-            self.update()
-            
-            for i3 in requests.get(i2):
-                self.p.step()            
-                if a3==1:#May be an incomplete chunk, add its neighbor
-                    combined=combined+str(i3)
-                    m = re.search(''',"title":"''', str(combined))
+        while  1:
+            if a2==5:
+                break
+            for i2 in self.urlresults:
+                if a2==5:
+                    break
+                self.update()
+
+                for i3 in requests.get(i2):
+                    if a3==1:#May be an incomplete chunk, add its neighbor
+                        self.p.step()
+                        combined=combined+str(i3)
+                        m = re.search(''',"title":"''', str(combined))
+                        
+                        s1=str(combined)[m.end():]
+                        s1 = s1.split(',')
+                        s1="".join(s1[0])
+                        s1=re.sub(' ','_',s1)
+                        s1=re.sub('[\W]','',s1)
+                        s1=re.sub('_',' ',s1)
+                        self.lstbox0.insert(a2,str(s1))
+                        self.nameresults.append(str(s1))
+                        a3=0
+                        a2+=1
+                        if a2==5:
+                            break
+                        combined=''
+
+                    if re.search(''',"title":"''',str(i3)):
+
+                        combined=combined+str(i3)
+                        a3=1
                     
-                    s1=str(combined)[m.end():]
-                    s1 = s1.split(',')
-                    s1="".join(s1[0])
-                    s1=re.sub(' ','_',s1)
-                    s1=re.sub('[\W]','',s1)
-                    s1=re.sub('_',' ',s1)
-                    self.lstbox0.insert(a2,str(s1))
-                    a3=0
-                    a2+=1
-                    combined=''
-
-                if re.search(''',"title":"''',str(i3)):
-
-                    combined=combined+str(i3)
-                    a3=1
-              
-            self.update()
+                  
+                self.update()
 
     def selector(self,event):
         #Launch start of download of selected file
