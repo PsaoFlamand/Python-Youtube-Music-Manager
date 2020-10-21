@@ -5,10 +5,15 @@ import tkinter.scrolledtext as tkst
 import requests
 import youtube_dl
 from tkinter.ttk import Progressbar
+import multiprocessing
+
+
+
 class App(tk.Tk): 
 
     def __init__(self, *args, **kwargs):
-
+        
+        self.test=0
         #Standard setup
 
         tk.Tk.__init__(self, *args, **kwargs) 
@@ -37,63 +42,71 @@ class App(tk.Tk):
         
     def threadstarter(self):
         try:
-            thread0.stop()
-            thread0=threading.Thread(target=self.searcher)
-            thread0.start()
+            proc.stop()
+            proc = multiprocessing.Process(target=self.searcher(), args=())
+            proc.start()
         except:
-            thread0=threading.Thread(target=self.searcher)
-            thread0.start()
+            proc = multiprocessing.Process(target=self.searcher(), args=())
+            proc.start()
     def searcher(self):
+        self.test=1
+        self.stop_threads=False
+        while True:
+            #global stop_threads
 
-        #Retrieve url and name results from search query
-        
-        self.lstbox0.delete(0, tk.END)
-        excess = self.txtin0.get() 
-        excess=re.sub(' ','+',excess)
-        link='https://www.youtube.com/results?search_query='+ excess
-        self.urlresults=[]
-        self.nameresults=[]
-        for i in requests.get(link):
-
-            if re.search('"videoIds"',str(i)):#"url"
-                m = re.search('"videoIds"', str(i))
-                s0=str(i)[m.end():]
-                s0 = s0.split(',')
-                s0="".join(s0[0])
-                s0=re.sub('[\]\[}"\':]','',s0)
-
-                if len(s0)==11: #youtube video ID must be 11 chars long
-
-                    self.urlresults.append('https://www.youtube.com/watch?v='+s0)
-                    self.urlresults = list(dict.fromkeys(self.urlresults))
-        a2=0
-        a3=0
-        combined=''
-        for i2 in self.urlresults:
             
+            #Retrieve url and name results from search query
             
-            for i3 in requests.get(i2):
-                self.p.step()            
-                self.update()
-                if a3==1:#If an incomplete chunk is recieved, add its neighbor
-                    combined=combined+str(i3)
-                    m = re.search(''',"title":"''', str(combined))
-                    
-                    s1=str(combined)[m.end():]
-                    s1 = s1.split(',')
-                    s1="".join(s1[0])
-                    s1=re.sub(' ','_',s1)
-                    s1=re.sub('[\W]','',s1)
-                    s1=re.sub('_',' ',s1)
-                    self.lstbox0.insert(a2,str(s1))
-                    a3=0
-                    a2+=1
-                    combined=''
+            self.lstbox0.delete(0, tk.END)
+            excess = self.txtin0.get() 
+            excess=re.sub(' ','+',excess)
+            link='https://www.youtube.com/results?search_query='+ excess
+            self.urlresults=[]
+            self.nameresults=[]
+            for i in requests.get(link):
 
-                if re.search(''',"title":"''',str(i3)):
+                if re.search('"videoIds"',str(i)):#"url"
+                    m = re.search('"videoIds"', str(i))
+                    s0=str(i)[m.end():]
+                    s0 = s0.split(',')
+                    s0="".join(s0[0])
+                    s0=re.sub('[\]\[}"\':]','',s0)
 
-                    combined=combined+str(i3)
-                    a3=1
+                    if len(s0)==11: #youtube video ID must be 11 chars long
+
+                        self.urlresults.append('https://www.youtube.com/watch?v='+s0)
+                        self.urlresults = list(dict.fromkeys(self.urlresults))
+            a2=0
+            a3=0
+            combined=''
+            for i2 in self.urlresults:
+                
+                
+                for i3 in requests.get(i2):
+                    self.p.step()            
+                    self.update()
+                    if(self.stop_threads):
+                        break
+                    if a3==1:#If an incomplete chunk is recieved, add its neighbor
+                        combined=combined+str(i3)
+                        m = re.search(''',"title":"''', str(combined))
+                        
+                        s1=str(combined)[m.end():]
+                        s1 = s1.split(',')
+                        s1="".join(s1[0])
+                        s1=re.sub(' ','_',s1)
+                        s1=re.sub('[\W]','',s1)
+                        s1=re.sub('_',' ',s1)
+                        self.lstbox0.insert(a2,str(s1))
+                        a3=0
+                        a2+=1
+                        combined=''
+
+                    if re.search(''',"title":"''',str(i3)):
+
+                        combined=combined+str(i3)
+                        a3=1
+
     def selector(self,event):
         #Launch start of download of selected file
         widget = event.widget 
