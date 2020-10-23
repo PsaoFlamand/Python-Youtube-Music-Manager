@@ -64,6 +64,7 @@ class App(tk.Tk):
             self.update()
             if a9==1: #attach neighbor in case of incomplete chunk
                 combined=combined+str(i)
+            
                 m = re.search('"videoIds"', str(combined))
                 s0=str(combined)[m.end():]
                 s0 = s0.split(',')
@@ -86,41 +87,34 @@ class App(tk.Tk):
         a2=0
         a3=0
         combined=''
-        while  1:
-            if a2==5:
-                break
-            for i2 in self.urlresults:
-                if a2==5:
-                    break
-                self.update()
 
-                for i3 in requests.get(i2):
-                    if a3==1:#May be an incomplete chunk, add its neighbor
-                        self.p.step()
-                        combined=combined+str(i3)
-                        m = re.search(''',"title":"''', str(combined))
-                        
-                        s1=str(combined)[m.end():]
-                        s1 = s1.split(',')
-                        s1="".join(s1[0])
-                        s1=re.sub(' ','_',s1)
-                        s1=re.sub('[\W]','',s1)
-                        s1=re.sub('_',' ',s1)
-                        self.lstbox0.insert(a2,str(s1))
-                        self.nameresults.append(str(s1))
-                        a3=0
-                        a2+=1
-                        if a2==5:
-                            break
-                        combined=''
+        for i2 in self.urlresults:
+            self.update()
 
-                    if re.search(''',"title":"''',str(i3)):
-
-                        combined=combined+str(i3)
-                        a3=1
+            for i3 in requests.get(i2):
+                if a3==1:#May be an incomplete chunk, add its neighbor
+                    self.p.step()
+                    combined=combined+str(i3)
+                    m = re.search(''',"title":"''', str(combined))
                     
-                  
-                self.update()
+                    s1=str(combined)[m.end():]
+                    s1 = s1.split(',')
+                    s1="".join(s1[0])
+                    s1=re.sub(' ','_',s1)
+                    s1=re.sub('[\W]','',s1)
+                    s1=re.sub('_',' ',s1)
+                    self.lstbox0.insert(a2,str(s1))
+                    self.nameresults.append(str(s1))
+                    a3=0
+                    a2+=1
+                    combined=''
+
+                if re.search(''',"title":"''',str(i3)):
+
+                    combined=combined+str(i3)
+                    a3=1
+                    
+            self.update()
 
     def selector(self,event):
         #Launch start of download of selected file
@@ -129,8 +123,8 @@ class App(tk.Tk):
         words = widget.get(selection[0]) 
         words=words.split(' ')
         selection=re.sub("\D", "", str(selection))
+        
         thread1 = threading.Thread(target=self.download(selection))
-     
         thread1.start()
         words='' 
 
