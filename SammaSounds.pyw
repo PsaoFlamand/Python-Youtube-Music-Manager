@@ -7,7 +7,6 @@ import youtube_dl
 from tkinter.ttk import Progressbar
 import multiprocessing
 import subprocess
-import time
 
 class App(tk.Tk): 
 
